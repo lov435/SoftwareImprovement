@@ -6,7 +6,7 @@ Created on Wed May 21 23:37:10 2020
 """
 
 class Comment:
-    def __init__(self, text, authorId, timeStamp):
+    def __init__(self, text, author, timeStamp):
         self.text = text
-        self.authorId = authorId
+        self.author = author
         self.timeStamp = timeStamp
