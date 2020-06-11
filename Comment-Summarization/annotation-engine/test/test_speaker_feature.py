@@ -5,6 +5,9 @@ Created on Wed May 27 23:52:58 2020
 @author: viral
 """
 
+import sys, os
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
+
 import datetime
 from general.comment import Comment
 from general.author import Author
