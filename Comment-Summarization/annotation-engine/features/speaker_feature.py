@@ -36,3 +36,6 @@ class Speaker_Feature:
     
     def refersToSpeaker(self, c1, c2):
         return ("@" + c2.author.authorName in c1.text) or self._priorAuthorNameMentioned(c1.text, c2.author.authorId)
+    
+    def refersToSpeakerNoOrder(self, c1, c2):
+        return self.refersToSpeaker(c1, c2) or self.refersToSpeaker(c2, c1)

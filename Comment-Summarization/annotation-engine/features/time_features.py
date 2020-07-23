@@ -29,10 +29,7 @@ class Time_Features:
         else:
             duration = t1 - t2
           
-        print("Duration is ", duration)
         secs = duration.total_seconds() 
-        
-        print("Seconds are ", secs)
         
         if secs < 60: #1 minute
             features["tdiff_minute"] = 1  

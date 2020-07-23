@@ -21,6 +21,15 @@ class testSemanticFeature(unittest.TestCase):
         semFeature = Semantic_Feature()
         self.assertEqual(semFeature.cosine_similarity(c1, c1), 1.0)
 
+    def testSpecificSemantics(self):
+        a1 = Author("SusanW", 5851520, 1461)
+        c1 = Comment("@AmrishPandey &quot;finally block is not called in case of exception thrown by daemon thread&quot; - really?? [Citation Needed], I think? Actually <code>thread.stop()</code> does not necessarily prevent <code>finally</code> block from being executed.", a1, datetime.datetime(2017, 4, 25))
+
+        a2 = Author("", 0, 0)
+        c2 = Comment("@SusanW javarevisited.blogspot.in/2012/03/…", a2, datetime.datetime(2020, 6, 24))
+
+        semFeature = Semantic_Feature()
+        self.assertNotEqual(semFeature.cosine_similarity(c1, c2), 1.0)
 
 if __name__ == '__main__':
     unittest.main()

@@ -60,4 +60,3 @@ class Training_Data:
 
 d = Training_Data()
 posts = d.loadData()
-print(posts)
