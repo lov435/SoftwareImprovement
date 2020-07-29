@@ -43,8 +43,8 @@ class SO_Model:
                 y = 1 if group1 == group2 else 0
                 try:
                     x1 = speaker_feature.isSameSpeaker(comment1, comment2)
-                    #x2 = speaker_feature.refersToSpeakerNoOrder(comment1, comment2)
-                    x2 = True
+                    x2 = speaker_feature.refersToSpeakerUseCacheNoOrder(comment1, comment2)
+                    #x2 = True
                     #x3 = semantic_feature.cosine_similarity(comment1, comment2)
                     x3 = 1                    
                             
@@ -79,7 +79,7 @@ class SO_Model:
         
         #Let's do 10-Fold Cross validation
         print("Average cross validation score is")
-        print(np.mean(cross_val_score(model, np.array(X), np.array(Y), cv=10))
-)        
+        print(np.mean(cross_val_score(model, np.array(X), np.array(Y), cv=10)))        
+
 model = SO_Model()
 model.trainModel()
