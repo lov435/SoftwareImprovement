@@ -78,8 +78,11 @@ class SO_Model:
         #model.fit(np.array(X), np.array(Y))
         
         #Let's do 10-Fold Cross validation
-        print("Average cross validation score is")
-        print(np.mean(cross_val_score(model, np.array(X), np.array(Y), cv=10)))        
+        print("Average cross validation accuract is")
+        print(np.mean(cross_val_score(model, np.array(X), np.array(Y), cv=10, scoring='accuracy')))        
+
+        print("Average cross validation F-measure is")
+        print(np.mean(cross_val_score(model, np.array(X), np.array(Y), cv=10, scoring='f1')))        
 
 model = SO_Model()
 model.trainModel()
