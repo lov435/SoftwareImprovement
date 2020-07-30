@@ -12,9 +12,13 @@ from trainingdata.training_data import Training_Data
 from features.semantic_feature import Semantic_Feature
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import cross_val_score
+from imblearn.over_sampling import SMOTE, ADASYN
+
 from features.speaker_feature import Speaker_Feature
 from features.time_features import Time_Features
 from itertools import combinations
+from collections import Counter
+
 import numpy as np
 
 class SO_Model:
@@ -74,6 +78,12 @@ class SO_Model:
     def trainModel(self):
         X, Y = self._getTrainingData()
         print("Size of Training set is", len(X), len(Y))
+        print("Y samples are ", sorted(Counter(np.array(Y)).items()))
+        
+        X_resampled, Y_resampled = SMOTE().fit_resample(np.array(X), np.array(Y))
+        print("Oversampled Y samples are ", sorted(Counter(Y_resampled).items()))
+
+        
         model = RandomForestClassifier(n_estimators=40)
         #model.fit(np.array(X), np.array(Y))
         
@@ -82,7 +92,14 @@ class SO_Model:
         print(np.mean(cross_val_score(model, np.array(X), np.array(Y), cv=10, scoring='accuracy')))        
 
         print("Average cross validation F-measure is")
-        print(np.mean(cross_val_score(model, np.array(X), np.array(Y), cv=10, scoring='f1')))        
+        print(np.mean(cross_val_score(model, np.array(X), np.array(Y), cv=10, scoring='f1')))  
+        
+        #Now let's run the classifier on SMOTE oversampled dataset
+        print("Average cross validation accuracy on oversampled dataset is")
+        print(np.mean(cross_val_score(model, X_resampled, Y_resampled, cv=10, scoring='accuracy')))        
+
+        print("Average cross validation F-measure on oversampled dataset is")
+        print(np.mean(cross_val_score(model, X_resampled, Y_resampled, cv=10, scoring='f1')))        
 
 model = SO_Model()
 model.trainModel()
