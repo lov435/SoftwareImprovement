@@ -24,11 +24,11 @@ class Semantic_Feature:
     def cosine_similarity(self, c1, c2):
         c1_words = [word for word in c1.text.split() if word in self.model.vocab]
         if not c1_words:
-            return 0.0
+            return 0.5
         mean_vec_c1 = np.mean(self.model[c1_words], axis=0)
         c2_words = [word for word in c2.text.split() if word in self.model.vocab]
         if not c2_words:
-            return 0.0
+            return 0.5
         mean_vec_c2 = np.mean(self.model[c2_words], axis=0)
         cosine = 1.0 - scipy.spatial.distance.cosine(mean_vec_c1, mean_vec_c2)
         return cosine
