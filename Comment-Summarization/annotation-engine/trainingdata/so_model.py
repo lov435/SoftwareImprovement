@@ -46,7 +46,7 @@ class SO_Model:
         Y = []
         self.feature_labels = ["same_speaker","refers_to_speaker","semantic_cos",
             "tdiff_minute","tdiff_5min","tdiff_30min","tdiff_hour","tdiff_24h",
-            "tdiff_week","tdiff_month","tdiff_half_year","tdiff_year","other"]
+            "tdiff_week","tdiff_month","tdiff_half_year","tdiff_year","other", "jaccard"]
 
         for post in all_posts:
             pairs = list(combinations(post, 2))
