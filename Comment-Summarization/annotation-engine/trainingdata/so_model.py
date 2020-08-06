@@ -46,7 +46,8 @@ class SO_Model:
         Y = []
         self.feature_labels = ["same_speaker","refers_to_speaker","semantic_cos",
             "tdiff_minute","tdiff_5min","tdiff_30min","tdiff_hour","tdiff_24h",
-            "tdiff_week","tdiff_month","tdiff_half_year","tdiff_year","other", "jaccard"]
+            "tdiff_week","tdiff_month","tdiff_half_year","tdiff_year","other", 
+            "jaccard", "refers_to_third_speaker"]
 
         for post in all_posts:
             pairs = list(combinations(post, 2))
@@ -74,8 +75,11 @@ class SO_Model:
                     x13 = feature_dict["other"]
                     
                     x14 = textSimFeatures.jaccard_feature(comment1, comment2)
+                    
+                    x15 = speaker_feature.refersToThirdSpeaker(comment1, comment2)
 
-                    features = [x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14]                
+
+                    features = [x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15]                
                     X.append(features) 
                     Y.append(y)
                 except Exception as e:

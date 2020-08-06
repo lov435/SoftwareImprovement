@@ -76,3 +76,15 @@ class Speaker_Feature:
     
     def refersToSpeakerUseCacheNoOrder(self, c1, c2):
         return self.refersToSpeakerUseCache(c1, c2) or self.refersToSpeakerUseCache(c2, c1)
+    
+    def refersToThirdSpeaker(self, c1, c2):
+        sameThirdSpeaker = False
+        c1mentions = [ t for t in c1.text.split() if t.startswith('@') ]
+        c2mentions = [ t for t in c2.text.split() if t.startswith('@') ]
+        if c1mentions and c2mentions:
+            if c1mentions[0].lower() in c2mentions[0].lower() or \
+            c2mentions[0].lower() in c1mentions[0].lower():
+                sameThirdSpeaker = True
+        return sameThirdSpeaker
+            
+            
