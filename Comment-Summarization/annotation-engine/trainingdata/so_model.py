@@ -54,7 +54,7 @@ class SO_Model:
                     x1 = speaker_feature.isSameSpeaker(comment1, comment2)
                     x2 = speaker_feature.refersToSpeakerUseCacheNoOrder(comment1, comment2)
                     #x2 = True
-                    x3 = semantic_feature.cosine_similarity(comment1, comment2)
+                    x3 = semantic_feature.weighted_cosine_similarity(comment1, comment2)
                     #x3 = 1
                             
                     feature_dict = timeFeatures.getTimeFeature(comment1, comment2)
@@ -94,27 +94,27 @@ class SO_Model:
         X_resampled, Y_resampled = SMOTE().fit_resample(np.array(X), np.array(Y))
         print("Oversampled Y samples are ", sorted(Counter(Y_resampled).items()))
 
-        #model = RandomForestClassifier(max_depth=5)
-        #model.fit(np.array(X), np.array(Y))
+        model = RandomForestClassifier(max_depth=5)
+        model.fit(np.array(X), np.array(Y))
         #self._checkFeatureImportance(model,X,Y)
 
         #model = KNeighborsClassifier(3)
 
-        model = SVC()
+        #model = SVC()
 
         #Let's do 10-Fold Cross validation
         print("Average cross validation accuracy is")
-        print(np.mean(cross_val_score(model, np.array(X), np.array(Y), cv=10, scoring='accuracy')))        
+        print(np.mean(cross_val_score(model, np.array(X), np.array(Y), cv=10, scoring='accuracy')))
 
         print("Average cross validation F-measure is")
         print(np.mean(cross_val_score(model, np.array(X), np.array(Y), cv=10, scoring='f1')))  
         
         #Now let's run the classifier on SMOTE oversampled dataset
-        print("Average cross validation accuracy on oversampled dataset is")
-        print(np.mean(cross_val_score(model, X_resampled, Y_resampled, cv=10, scoring='accuracy')))        
-
-        print("Average cross validation F-measure on oversampled dataset is")
-        print(np.mean(cross_val_score(model, X_resampled, Y_resampled, cv=10, scoring='f1')))        
+        # print("Average cross validation accuracy on oversampled dataset is")
+        # print(np.mean(cross_val_score(model, X_resampled, Y_resampled, cv=10, scoring='accuracy')))
+        #
+        # print("Average cross validation F-measure on oversampled dataset is")
+        # print(np.mean(cross_val_score(model, X_resampled, Y_resampled, cv=10, scoring='f1')))
 
 
 if __name__ == '__main__':
