@@ -35,19 +35,19 @@ class Semantic_Feature:
         return cosine
 
     def weighted_cosine_similarity(self, c1, c2):
+        weighted_c1 = 0
+        weighted_c2 = 0
         c1_words = [word for word in c1.text.split() if word in self.model.vocab]
         if not c1_words:
             return self.empty_vec_sim
         c2_words = [word for word in c2.text.split() if word in self.model.vocab]
         if not c2_words:
             return self.empty_vec_sim
-        weighted_c1 = 0
         for c1_word in c1_words:
-            weighted_c1 = np.add(weighted_c1, self.model[c1_word] * (1.0 / self.model.vocab[c1_word].count))
+            weighted_c1 = np.add(weighted_c1, self.model[c1_word] * (0.001 / (0.001 + self.model.vocab[c1_word].count)))
         weighted_c1 = weighted_c1 / len(c1_words)
-        weighted_c2 = 0
         for c2_word in c2_words:
-            weighted_c2 = np.add(weighted_c2, self.model[c2_word] * (1.0 / self.model.vocab[c2_word].count))
+            weighted_c2 = np.add(weighted_c2, self.model[c2_word] * (0.001 / (0.001 + self.model.vocab[c2_word].count)))
         weighted_c2 = weighted_c2 / len(c2_words)
         cosine = 1.0 - scipy.spatial.distance.cosine(weighted_c1, weighted_c2)
         return cosine
