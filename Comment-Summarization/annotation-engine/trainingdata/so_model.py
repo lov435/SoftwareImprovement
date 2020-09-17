@@ -10,6 +10,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
 from trainingdata.training_data import Training_Data
 from features.semantic_feature import Semantic_Feature
+from features.bert_feature import Bert_Feature
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
@@ -41,6 +42,7 @@ class SO_Model:
         semantic_feature = Semantic_Feature()
         timeFeatures = Time_Features()
         textSimFeatures = Text_Similarity_Features()
+        bert_feature = Bert_Feature()
 
         X = []
         Y = []
@@ -77,9 +79,9 @@ class SO_Model:
                     x14 = textSimFeatures.jaccard_feature(comment1, comment2)
                     
                     x15 = speaker_feature.refersToThirdSpeaker(comment1, comment2)
+                    x16 = bert_feature.cosine_similarity(comment1, comment2)
 
-
-                    features = [x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15]                
+                    features = [x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16]                
                     X.append(features) 
                     Y.append(y)
                 except Exception as e:
