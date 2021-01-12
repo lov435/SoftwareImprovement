@@ -1,0 +1,129 @@
+%%%%%%%%%%%%%%%%%%%%%%% file template.tex %%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% This is a general template file for the LaTeX package SVJour3
+% for Springer journals.          Springer Heidelberg 2010/09/16
+%
+% Copy it to a new file with a new name and use it as the basis
+% for your article. Delete % signs as needed.
+%
+% This template includes a few options for different layouts and
+% content for various journals. Please consult a previous issue of
+% your journal as needed.
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\RequirePackage{fix-cm}
+
+%
+%\documentclass{svjour3}                     % onecolumn (standard format)
+%\documentclass[smallcondensed]{svjour3}     % onecolumn (ditto)
+\documentclass[smallextended]{svjour3}       % onecolumn (second format)
+%\documentclass[twocolumn]{svjour3}          % twocolumn
+%
+\smartqed  % flush right qed marks, e.g. at end of proof
+%
+\usepackage[pdftex]{graphicx}
+\usepackage{cite}
+\usepackage{amsmath,amsfonts,bm,amssymb}
+\usepackage[caption=false,font=footnotesize]{subfig}
+\usepackage{url}
+\usepackage{paralist}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows, fit, positioning}
+\usepackage[htt]{hyphenat}
+%%\usepackage{float}
+
+%
+% \usepackage{mathptmx}      % use Times fonts if available on your TeX system
+%
+% insert here the call for the packages your document requires
+%\usepackage{latexsym}
+% etc.
+%
+% please place your own definitions here and don't use \def but
+% \newcommand{}{}
+%
+% Insert the name of "your journal" with
+\journalname{Automated Software Engineering}
+
+
+
+
+
+
+
+
+
+
+\begin{document}
+\title{Interaction Data}
+\titlerunning{Modeling Hierarchical Usage Context of Software Exceptions}
+
+\author{
+    Hui Chen,
+    Kostadin Damevski,
+    David Shepherd \and
+    Nicholas A. Kraft
+}
+\institute{H. Chen \at 
+    Department of Computer and Information Science \\
+    Brooklyn College of the City University of New York \\
+    Brooklyn, NY 11210, U.S.A.\\
+    \email{huichen@ieee.org} 
+    \and
+    K. Damevski \at 
+    Department of Computer Science \\
+    Virginia Commonwealth University \\
+    Richmond, VA 23284, U.S.A.\\
+    \email{damevski@acm.org}
+    \and
+    D.C. Shepherd \at
+    ABB Corporate Research\\
+    Raleigh, NC 27606 U.S.A.\\
+    \email{david.shepherd@us.abb.com}
+    \and
+    N.A. Kraft \at
+    ABB Corporate Research\\
+    Raleigh, NC 27606 U.S.A.\\
+    \email{nicholas.a.kraft@us.abb.com}
+}
+
+
+\date{Received: date / Accepted: date}
+
+
+\maketitle
+
+\input{abstract}
+
+
+
+\input{sec_intro}
+%\input{sec_bg}
+%\input{sec_nhdp}
+%\input{sec_eval}
+%\input{sec_threat}
+%\input{sec_related}
+%\input{sec_conclusion}
+
+
+
+
+
+
+
+
+
+\begin{acknowledgements}
+    The authors would like to thank the RobotStudio team at ABB Inc for providing
+    the interaction dataset and responding to the survey. The authors are also
+    grateful to the anonymous reviewers' constructive comments. 
+\end{acknowledgements}
+
+
+\bibliographystyle{spmpsci}      % basic style, author-year citations
+\bibliography{paper}
+
+
+
+\end{document}

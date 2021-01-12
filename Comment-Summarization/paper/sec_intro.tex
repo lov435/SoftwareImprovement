@@ -1,0 +1,143 @@
+\section{Introduction}
+
+% talk about bug prioritization and talk about how interaction traces have
+% rarely been considered for this purpose.
+
+%
+% stack-trace is important data debugging, in particular, for software
+% in production.
+%
+% it is important to understand bugs, in particular, the context of
+% the bugs, a characteristics of bugs
+
+Continuous monitoring of deployed software usage is now a standard approach in
+industry. Developers leverage usage data to discover and correct faults,
+performance bottlenecks, or inefficient user interface design.  This practice
+has led to a debugging methodology called ``debugging in the large'', a
+postmortem analysis of large amount of usage data to recognize patterns of
+bugs~\cite{Han:2012:PDL:2337223.2337241, glerum2009debugging}. For instance,
+Arnold et al.\ use application stack traces to group processes exhibiting
+similar behavior called ``process equivalence classes'', and identify what
+differentiate these classes with the aim to discover the root cause of the bugs
+associated with the stack traces~\cite{arnold2007stack}. Han et al.\ clusters
+stack traces and recognize patterns of stack traces to discover impactful
+performance bugs~\cite{Han:2012:PDL:2337223.2337241}.
+
+%Following the above, we begin our work with the following observation.
+Software-as-a-service applications often gather monitoring data at the service
+host, while user-installed client software collects relevant traces (or logs)
+periodically at the user's machines and transferred them from users'
+machines to a server. The granularity and format of the collected data (e.g.,
+whether the format of the data is a raw/log form or as a set of derivative
+metrics) depend on the specific application and deployment. Two types of data
+commonly collected via monitoring include {\em software exceptions}, containing
+a stack traces from software faults that occur in production, and {\em
+interaction traces}, containing details of user interactions with the
+software's interface.
+
+
+By utilizing datasets that contain both of these two types of data, we can provide 
+a novel perspective on interpreting frequently occurring stack traces resulting from software exceptions by
+modeling them in concert with the user interactions with which they co-occur.
+Our approach probabilistically represents stack traces and their interaction context
+for the purpose of increasing developer understanding of specific software
+faults and the contexts in which they appear. Over time, this understanding can
+help developers to reproduce exceptions, to prioritize software crash reports
+based on their user impact, or to identify specific user behaviors that tend to
+trigger failures.  Existing works attempt to empirically characterize software
+crash reports in application domains like operating systems, networking
+software, and open source software
+applications~\cite{Yin:2010:TUB:1823844.1823849, Chou:2001:ESO:502059.502042,
+Li:2006:TCE:1181309.1181314, Lu:2008:LMC:1353535.1346323}, but none have used
+interaction traces containing stack traces for the purpose of fault characterization 
+debugging.
+
+%% why it is innovative to use interaction or behavior data to understand bugs
+%Much software requires human interaction, such as, any software with user
+%interface. During users' interaction with a piece of software, a software fault
+%may happen, and it leads to an exception, followed by a software crash.  During
+%the process, many messages are written to log traces. These messages often
+%include stack traces and messages representing the interactions between the
+%users and the software.  Capturing the interactions between the user and her
+%software and the stack traces, we can analyze the interactions and establish in
+%which context the exception may occur, useful information to the developers.
+%Noting that developers' interaction traces with IDE have not been used for
+%understanding software bugs, we posit that a hierarchical analysis can
+%effectively lead to understanding the context of exceptions, and potentially
+%software bugs.
+
+% Why hierarchical models?
+Interaction traces can be challenging to analyze. First, the logged
+interactions are typically low-level, corresponding to most mouse clicks and key
+presses available in the software application, and therefore the raw number of
+interactions in these traces can be large --- containing millions of messages
+from different users. Second, for complex software applications, there are
+often multiple reasonable interaction paths to accomplish a specific high-level
+task while interaction traces that lead to different tasks can share shorter
+but common interaction paths.  To address these two challenges of scale and of
+uncertainty in interpreting interaction traces, we posit that probabilistic
+dimension reduction techniques that can extract frequent patterns from the
+low-level interaction data are the right choice to analyze interaction traces.
+
+Topic models are such a dimensionality reduction technique with the capacity to
+discover complex latent thematic structures. Typically applied to large textual
+document collections, such models can naturally capture the uncertainty in
+software interaction data using probabilistic assumptions; however, in cases
+where the interaction traces are particularly complex, e.g., in complex software
+applications such as IDEs or CAD tools, applying typical topic models may still
+result in a large topic space that is difficult to interpret. The special class
+of hierarchical topic models encodes a tree of related topics, enabling further
+reduction in complexity and dimensionality of the original interaction data and
+improving the interpretability of the model. We apply a hierarchical topic
+modeling technique, called the Nested Hierarchical Dirichlet Process
+(NHDP)~\cite{6802355} to combine interaction traces and stack traces gathered
+from a complex software application into a single, compact representation. The
+NHDP discovers a hierarchical structure of usage events that has the following
+characteristics:
+
+\begin{itemize}
+\item provides an interpretable summary of the user interactions that commonly co-occur with specific stack traces;
+\item allows for differentiating the strength of the relationship between specific interaction trace messages and a stack trace; and
+\item enables locating specific interactions that have co-occurred with numerous runtime errors.
+\end{itemize}
+
+\noindent In addition, as a Bayesian non-parametric modeling technique, NHDP
+has an additional advantage. It allows the model to grow structurally as it
+observes more data. Specifically, instead of imposing a fixed set of topics or
+hypotheses about the relationship of the topics, the model grows its hierarchy
+to fit the data, i.e., to ``let the data
+speak''~\cite{Blei:2010:NCR:1667053.1667056}. This is beneficial in modeling the
+datasets of interest since users' interaction with software
+changes as the software does, e.g., by adding new features or
+removing (or introducing) new bugs. 
+
+%If an interaction (a command or an event)  is commonly associated with a stack
+% trace, then the relationship can be further explored to diagnose the problem.
+
+The main contributions of this paper are as follows:
+\begin{itemize}
+    \item We apply a hierarchical topic model to a large collection of
+      interaction and stack trace data produced by ABB RobotStudio, a popular
+      robot programming platform developed at ABB Inc, and examine how
+      effective it extracts latent thematic structures of the dataset and how
+      well the structure depicts a context for exceptions occurring
+      during the production use of RobotStudio. 
+
+    \item We are first to propose the idea of grouping users' IDE interaction traces with
+        stack traces hierarchically and probabilistically into ``clusters''.
+        These ``clusters'' provide user interaction contexts of stack traces.  Since a
+        stack trace may be the result of multiple different interaction contexts, this
+        approach associates a stack trace with its contexts probabilistically. 
+
+\end{itemize}
+
+We organize the remainder of this paper as follows.
+Section~\ref{sec:background} introduces the types of interaction and stack
+trace data we use and how we prepare these data sources for topic modeling. We
+describe the hierarchical topic modeling technique and its application to
+software interaction and crash data in Section~\ref{sec:nhdp}. We apply the
+modeling technique to the large RobotStudio dataset and provide an evaluation
+in Section~\ref{sec:eval}. Our work is not without threats to its validity, which we discuss in
+Section~\ref{sec:threat}. In
+Section~\ref{sec:related-work}, we describe relevant related research and
+conclude this paper in Section~\ref{sec:end}.

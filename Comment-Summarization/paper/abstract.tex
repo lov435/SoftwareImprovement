@@ -1,0 +1,33 @@
+\begin{abstract}
+
+    Traces of user interactions with a software system, captured in production,
+    are commonly used as an input source for user experience testing. In this
+    paper, we present an alternative use, introducing a novel approach of
+    modeling user interaction traces enriched with another type of data gathered
+    in production - software fault reports consisting of software exceptions and
+    stack traces. The model described in this paper aims to improve developers'
+    comprehension of the circumstances surrounding a specific software exception
+    and can highlight specific user behaviors that lead to a high frequency of
+    software faults.
+
+
+    Modeling the combination of interaction traces and software crash reports to
+    form an interpretable and useful model is challenging due to the complexity
+    and variance in the combined data source. Therefore, we propose a
+    probabilistic unsupervised learning approach, adapting the Nested
+    Hierarchical Dirichlet Process, which is a Bayesian non-parametric
+    hierarchical topic model originally applied to natural language data. This
+    model infers a tree of topics, each of whom describes a set of commonly
+    co-occurring commands and exceptions. The topic tree can be interpreted
+    hierarchically to aid in categorizing the numerous types of exceptions and
+    interactions. We apply the proposed approach to large scale datasets
+    collected from the ABB RobotStudio software application, and evaluate it
+    both numerically and with a small survey of the RobotStudio developers.
+
+
+    \keywords{
+        Stack Trace, Crash Report, Software Exception, Software Interaction
+        Trace, Hierarchical Topic Model
+    }
+
+\end{abstract}
