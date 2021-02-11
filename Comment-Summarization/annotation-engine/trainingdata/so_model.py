@@ -62,38 +62,33 @@ class SO_Model:
                 group1 = post.get(comment1)
                 group2 = post.get(comment2)
                 y = 1 if group1 == group2 else 0
-                try:
-                    x1 = speaker_feature.isSameSpeaker(comment1, comment2)
-                    x2 = speaker_feature.refersToSpeakerUseCacheNoOrder(comment1, comment2)
-                    #x2 = True
-                    x3 = semantic_feature.weighted_cosine_similarity(comment1, comment2)
-                    #x3 = 1
-                            
-                    feature_dict = timeFeatures.getTimeFeature(comment1, comment2)
-                    x4 = feature_dict["tdiff_minute"]
-                    x5 = feature_dict["tdiff_5min"]
-                    x6 = feature_dict["tdiff_30min"]
-                    x7 = feature_dict["tdiff_hour"]
-                    x8 = feature_dict["tdiff_24h"]
-                    x9 = feature_dict["tdiff_week"]
-                    x10 = feature_dict["tdiff_month"]
-                    x11 = feature_dict["tdiff_half_year"]
-                    x12 = feature_dict["tdiff_year"]
-                    x13 = feature_dict["other"]
-                    
-                    x14 = textSimFeatures.jaccard_feature(comment1, comment2)
-                    
-                    x15 = speaker_feature.refersToThirdSpeaker(comment1, comment2)
-                    # x16 = bert_feature.cosine_similarity(comment1, comment2)
 
-                    features = [x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15]
-                    X.append(features) 
-                    Y.append(y)
-                except Exception as e:
-                    print("-----")
-                    print(comment1.text)
-                    print(comment2.text)
-                    print("Skipping this comment pair for an error: " + str(e))
+                x1 = speaker_feature.isSameSpeaker(comment1, comment2)
+                x2 = speaker_feature.refersToSpeakerUseCacheNoOrder(comment1, comment2)
+                #x2 = True
+                x3 = semantic_feature.weighted_cosine_similarity(comment1, comment2)
+                #x3 = 1
+
+                feature_dict = timeFeatures.getTimeFeature(comment1, comment2)
+                x4 = feature_dict["tdiff_minute"]
+                x5 = feature_dict["tdiff_5min"]
+                x6 = feature_dict["tdiff_30min"]
+                x7 = feature_dict["tdiff_hour"]
+                x8 = feature_dict["tdiff_24h"]
+                x9 = feature_dict["tdiff_week"]
+                x10 = feature_dict["tdiff_month"]
+                x11 = feature_dict["tdiff_half_year"]
+                x12 = feature_dict["tdiff_year"]
+                x13 = feature_dict["other"]
+
+                x14 = textSimFeatures.jaccard_feature(comment1, comment2)
+
+                x15 = speaker_feature.refersToThirdSpeaker(comment1, comment2)
+                # x16 = bert_feature.cosine_similarity(comment1, comment2)
+
+                features = [x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15]
+                X.append(features)
+                Y.append(y)
 
         return X, Y
 
@@ -103,13 +98,30 @@ class SO_Model:
             print(feature)
 
 
-    def _printPredictions(predfile, proba):
+    def _printPredictions(self, predfile, proba):
         with open(predfile, 'w') as f:
             for pr_tuple in proba:
                 if (pr_tuple[0] > 0.5):
                     f.write("0\t" + str(1 - pr_tuple[0]) + "\n")
                 else:
                     f.write("1\t" + str(pr_tuple[1]) + "\n")
+
+
+    def _printKeys(self, keysfile, test_posts):
+        start = 0
+        with open(keysfile, 'w') as f:
+            for t_post in test_posts:
+                pairs = list(combinations(enumerate(t_post), 2))
+                for (item1, item2) in pairs:
+                    f.write(str(start + item1[0]) + " " + str(start + item2[0]) + "\n")
+                start = start + len(t_post)
+
+
+    def _printChats(self, chatsfile, test_posts):
+        with open(chatsfile, 'w') as f:
+            for t_post in test_posts:
+                for comment in t_post.items():
+                   f.write("T1234 0 " + comment[0].author.authorName.replace(" ", "_") + " : " + comment[0].text + "\n")
 
 
     def runModelTrainTestSplit(self):
@@ -135,6 +147,10 @@ class SO_Model:
                 print(comment1.text)
                 print(comment2.text)
                 print(proba_Y[i][0])
+
+        self._printChats('chats',test_posts)
+        self._printKeys('keys',test_posts)
+        self._printPredictions('predictions',proba_Y)
 
 
 

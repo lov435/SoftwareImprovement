@@ -75,7 +75,17 @@ class Speaker_Feature:
         return self.refersToSpeaker(c1, c2) or self.refersToSpeaker(c2, c1)
     
     def refersToSpeakerUseCacheNoOrder(self, c1, c2):
-        return self.refersToSpeakerUseCache(c1, c2) or self.refersToSpeakerUseCache(c2, c1)
+        x1 = False
+        x2 = False
+        try:
+            x1 = self.refersToSpeakerUseCache(c1, c2)
+            x2 = self.refersToSpeakerUseCache(c2, c1)
+        except Exception as e:
+            print("----- Error computing speaker feature for the comment pair:")
+            print(c1.text)
+            print(c2.text)
+            pass
+        return x1 or x2
     
     def refersToThirdSpeaker(self, c1, c2):
         sameThirdSpeaker = False
