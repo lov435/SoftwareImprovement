@@ -10,11 +10,12 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
 from trainingdata.training_data import Training_Data
 from features.semantic_feature import Semantic_Feature
-from features.bert_feature import Bert_Feature
+# from features.bert_feature import Bert_Feature
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
 from sklearn.model_selection import cross_val_score
+from sklearn.metrics import precision_recall_fscore_support
 from imblearn.over_sampling import SMOTE, ADASYN
 
 from features.speaker_feature import Speaker_Feature
@@ -34,15 +35,19 @@ class SO_Model:
             comments = comments + list(post.keys())
         return comments
     
-    def _getTrainingData(self):
+    def _getTrainingData(self, percent=1.0):
+        assert percent <= 1.0 and percent >= 0.0
         d = Training_Data()
         all_posts = d.loadData()
+        num_train = int(len(all_posts) * percent)
+        return all_posts[:num_train],all_posts[num_train:]
 
+    def _computeFeatures(self, all_posts):
         speaker_feature = Speaker_Feature()
         semantic_feature = Semantic_Feature()
         timeFeatures = Time_Features()
         textSimFeatures = Text_Similarity_Features()
-        bert_feature = Bert_Feature()
+        # bert_feature = Bert_Feature()
 
         X = []
         Y = []
@@ -79,9 +84,9 @@ class SO_Model:
                     x14 = textSimFeatures.jaccard_feature(comment1, comment2)
                     
                     x15 = speaker_feature.refersToThirdSpeaker(comment1, comment2)
-                    x16 = bert_feature.cosine_similarity(comment1, comment2)
+                    # x16 = bert_feature.cosine_similarity(comment1, comment2)
 
-                    features = [x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15, x16]                
+                    features = [x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15]
                     X.append(features) 
                     Y.append(y)
                 except Exception as e:
@@ -98,20 +103,56 @@ class SO_Model:
             print(feature)
 
 
-    def trainModel(self):
-        X, Y = self._getTrainingData()
+    def _printPredictions(predfile, proba):
+        with open(predfile, 'w') as f:
+            for pr_tuple in proba:
+                if (pr_tuple[0] > 0.5):
+                    f.write("0\t" + str(1 - pr_tuple[0]) + "\n")
+                else:
+                    f.write("1\t" + str(pr_tuple[1]) + "\n")
+
+
+    def runModelTrainTestSplit(self):
+        train_posts, test_posts = self._getTrainingData(0.7)
+        X, Y = self._computeFeatures(train_posts)
+
+        print("Size of Training set is", len(X), len(Y))
+        print("Y samples are ", sorted(Counter(np.array(Y)).items()))
+
+        model = RandomForestClassifier(max_depth=5)
+        model.fit(np.array(X), np.array(Y))
+        TX, TY = self._computeFeatures(test_posts)
+        pred_Y = model.predict(np.array(TX))
+
+        print(precision_recall_fscore_support(TY, pred_Y))
+
+        proba_Y = model.predict_proba(np.array(TX))
+        print(proba_Y)
+
+        for t_post in test_posts:
+            pairs = list(combinations(t_post, 2))
+            for i, (comment1, comment2) in enumerate(pairs):
+                print(comment1.text)
+                print(comment2.text)
+                print(proba_Y[i][0])
+
+
+
+
+    def runModelCrossVal(self):
+        train_posts, test_posts = self._getTrainingData()
+        X, Y = self._computeFeatures(train_posts)
         print("Size of Training set is", len(X), len(Y))
         print("Y samples are ", sorted(Counter(np.array(Y)).items()))
         
-        X_resampled, Y_resampled = SMOTE().fit_resample(np.array(X), np.array(Y))
-        print("Oversampled Y samples are ", sorted(Counter(Y_resampled).items()))
+        # X_resampled, Y_resampled = SMOTE().fit_resample(np.array(X), np.array(Y))
+        # print("Oversampled Y samples are ", sorted(Counter(Y_resampled).items()))
 
         model = RandomForestClassifier(max_depth=5)
         model.fit(np.array(X), np.array(Y))
         #self._checkFeatureImportance(model,X,Y)
 
         #model = KNeighborsClassifier(3)
-
         #model = SVC()
 
         #Let's do 10-Fold Cross validation
@@ -131,4 +172,5 @@ class SO_Model:
 
 if __name__ == '__main__':
     model = SO_Model()
-    model.trainModel()
+    #model.runModelCrossVal()
+    model.runModelTrainTestSplit()
