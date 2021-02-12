@@ -102,7 +102,7 @@ class Comment:
                                    self.name, comment, self.rest)
 
 def parseChat(line):
-    print '--' + line + '---\n'
+    # print '--' + line + '---\n'
     match = basicRE.match(line)
     assert(match)
     return Comment(*match.groups())
