@@ -121,7 +121,8 @@ class SO_Model:
         with open(chatsfile, 'w') as f:
             for t_post in test_posts:
                 for comment in t_post.items():
-                   f.write("T1234 0 " + comment[0].author.authorName.replace(" ", "_") + " : " + comment[0].text + "\n")
+                    name = comment[0].author.authorName.replace(" ", "_")
+                    f.write("T1234 0 u_" + name + " :  " + comment[0].text + "\n")
 
 
     def runModelTrainTestSplit(self):
