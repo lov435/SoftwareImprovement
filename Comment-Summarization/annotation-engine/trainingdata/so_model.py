@@ -98,23 +98,39 @@ class SO_Model:
             print(feature)
 
 
-    def _printPredictions(self, predfile, proba):
-        with open(predfile, 'w') as f:
-            for pr_tuple in proba:
-                if (pr_tuple[0] > 0.5):
-                    f.write("0\t" + str(1 - pr_tuple[0]) + "\n")
-                else:
-                    f.write("1\t" + str(pr_tuple[1]) + "\n")
-
-
-    def _printKeys(self, keysfile, test_posts):
+    def _printKeysAndPreds(self, predfile, keysfile, test_posts, proba):
         start = 0
-        with open(keysfile, 'w') as f:
+        with open(predfile, 'w') as pf, open(keysfile, 'w') as kf:
             for t_post in test_posts:
                 pairs = list(combinations(enumerate(t_post), 2))
-                for (item1, item2) in pairs:
-                    f.write(str(start + item1[0]) + " " + str(start + item2[0]) + "\n")
+                pairs_proba = sorted(zip(pairs, proba), key=lambda x: x[0][1])
+                for (item1, item2), pr_tuple in pairs_proba:
+                    kf.write(str(start + item2[0]) + " " + str(start + item1[0]) + "\n")
+                    if (pr_tuple[0] > 0.5):
+                        pf.write("0\t" + str(1 - pr_tuple[0]) + "\n")
+                    else:
+                        pf.write("1\t" + str(pr_tuple[1]) + "\n")
                 start = start + len(t_post)
+                kf.write(str(start) + " " + str(start-1) + "\n")
+                pf.write("0\t0.0001\n")
+
+    # def _printPredictions(self, predfile, proba):
+    #     with open(predfile, 'w') as f:
+    #         for pr_tuple in proba:
+    #             if (pr_tuple[0] > 0.5):
+    #                 f.write("0\t" + str(1 - pr_tuple[0]) + "\n")
+    #             else:
+    #                 f.write("1\t" + str(pr_tuple[1]) + "\n")
+    #
+    #
+    # def _printKeys(self, keysfile, test_posts):
+    #     start = 0
+    #     with open(keysfile, 'w') as f:
+    #         for t_post in test_posts:
+    #             pairs = list(combinations(enumerate(t_post), 2))
+    #             for (item1, item2) in pairs:
+    #                 f.write(str(start + item2[0]) + " " + str(start + item1[0]) + "\n")
+    #             start = start + len(t_post)
 
 
     def _printChats(self, chatsfile, test_posts):
@@ -132,7 +148,7 @@ class SO_Model:
         print("Size of Training set is", len(X), len(Y))
         print("Y samples are ", sorted(Counter(np.array(Y)).items()))
 
-        model = RandomForestClassifier(max_depth=5)
+        model = RandomForestClassifier(n_estimators=500)
         model.fit(np.array(X), np.array(Y))
         TX, TY = self._computeFeatures(test_posts)
         pred_Y = model.predict(np.array(TX))
@@ -150,9 +166,9 @@ class SO_Model:
                 print(proba_Y[i][0])
 
         self._printChats('chats',test_posts)
-        self._printKeys('keys',test_posts)
-        self._printPredictions('predictions',proba_Y)
-
+        # self._printKeys('keys',test_posts)
+        # self._printPredictions('predictions',proba_Y)
+        self._printKeysAndPreds("predictions","keys",test_posts,proba_Y)
 
 
 

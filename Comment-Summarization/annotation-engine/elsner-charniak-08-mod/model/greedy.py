@@ -10,16 +10,16 @@ def resolve(currComment, votes, nextThread):
             maxThread = thread
 
     if maxScore > 0:
-#        print "Old"
+        #print "Old"
         currComment.thread = maxThread
     else:
-#        print "New"
+        #print "New"
         currComment.thread = nextThread
         nextThread += 1
 
-#     print "Resolving", currComment
-#     print votes
-#     print currComment.thread
+    #print "Resolving", currComment
+    #print votes
+    #print currComment.thread
     
     return nextThread
 
