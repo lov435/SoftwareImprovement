@@ -134,7 +134,7 @@ class SO_Model:
 
 
     def _printChats(self, chatsfile, test_posts):
-        with open(chatsfile, 'w') as f:
+        with open(chatsfile, 'w', encoding='utf-8') as f:
             for t_post in test_posts:
                 for comment in t_post.items():
                     name = comment[0].author.authorName.replace(" ", "_")
