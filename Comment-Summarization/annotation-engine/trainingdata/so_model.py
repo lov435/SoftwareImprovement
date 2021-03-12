@@ -111,6 +111,7 @@ class SO_Model:
                     else:
                         pf.write("1\t" + str(pr_tuple[1]) + "\n")
                 start = start + len(t_post)
+                #add a dummy link as E&C requires it
                 kf.write(str(start) + " " + str(start-1) + "\n")
                 pf.write("0\t0.0001\n")
 
