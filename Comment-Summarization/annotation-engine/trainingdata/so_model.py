@@ -136,10 +136,12 @@ class SO_Model:
 
     def _printChats(self, chatsfile, test_posts):
         with open(chatsfile, 'w', encoding='utf-8') as f:
+            idx = 1
             for t_post in test_posts:
                 for comment in t_post.items():
                     name = comment[0].author.authorName.replace(" ", "_")
-                    f.write("T1234 0 u_" + name + " :  " + comment[0].text + "\n")
+                    f.write("T1234 " + str(idx) + " u_" + name + " :  " + comment[0].text + "\n")
+                    idx = idx + 1
 
 
     def runModelTrainTestSplit(self):

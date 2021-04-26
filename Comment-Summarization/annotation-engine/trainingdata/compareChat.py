@@ -33,16 +33,20 @@ def entropy(convo):
 def processFile(filename):
     conv_dict = {}
     with open(filename, 'r', encoding='latin1') as f:
+        idx = 1
         for line in f:
             if not line.isspace():
                 parts = line.split(' ')
                 thread_id = parts[0]
                 timestamp = parts[1]
+                if timestamp == '0':
+                    timestamp = str(idx)
                 # remove 'T' in the thread
                 thread_id = int(thread_id[1:])
                 if thread_id not in conv_dict.keys():
                     conv_dict[thread_id] = list()
                 conv_dict[thread_id].append(timestamp)
+                idx = idx + 1
     return conv_dict
 
 
