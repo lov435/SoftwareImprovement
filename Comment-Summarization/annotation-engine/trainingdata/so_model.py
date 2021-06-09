@@ -63,30 +63,31 @@ class SO_Model:
                 group2 = post.get(comment2)
                 y = 1 if group1 == group2 else 0
 
-                x1 = speaker_feature.isSameSpeaker(comment1, comment2)
-                x2 = speaker_feature.refersToSpeakerUseCacheNoOrder(comment1, comment2)
+                x1 = int(speaker_feature.isSameSpeaker(comment1, comment2) == True)
+                x2 = int(speaker_feature.refersToSpeakerUseCacheNoOrder(comment1, comment2) == True)
                 #x2 = True
                 x3 = semantic_feature.weighted_cosine_similarity(comment1, comment2)
                 #x3 = 1
 
                 feature_dict = timeFeatures.getTimeFeature(comment1, comment2)
-                x4 = feature_dict["tdiff_minute"]
-                x5 = feature_dict["tdiff_5min"]
-                x6 = feature_dict["tdiff_30min"]
+                # x4 = feature_dict["tdiff_minute"]
+                # x5 = feature_dict["tdiff_5min"]
+                # x6 = feature_dict["tdiff_30min"]
                 x7 = feature_dict["tdiff_hour"]
                 x8 = feature_dict["tdiff_24h"]
                 x9 = feature_dict["tdiff_week"]
-                x10 = feature_dict["tdiff_month"]
-                x11 = feature_dict["tdiff_half_year"]
-                x12 = feature_dict["tdiff_year"]
+                # x10 = feature_dict["tdiff_month"]
+                # x11 = feature_dict["tdiff_half_year"]
+                # x12 = feature_dict["tdiff_year"]
                 x13 = feature_dict["other"]
 
                 x14 = textSimFeatures.jaccard_feature(comment1, comment2)
 
-                x15 = speaker_feature.refersToThirdSpeaker(comment1, comment2)
+                x15 = int(speaker_feature.refersToThirdSpeaker(comment1, comment2) == True)
                 # x16 = bert_feature.cosine_similarity(comment1, comment2)
 
-                features = [x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15]
+                features = [x1, x2, x3, x7, x8, x9, x13, x14, x15]
+                print(features)
                 X.append(features)
                 Y.append(y)
 
@@ -208,5 +209,5 @@ class SO_Model:
 
 if __name__ == '__main__':
     model = SO_Model()
-    #model.runModelCrossVal()
-    model.runModelTrainTestSplit()
+    model.runModelCrossVal()
+    #model.runModelTrainTestSplit()
