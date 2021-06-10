@@ -26,6 +26,9 @@ from itertools import combinations
 from collections import Counter
 
 import numpy as np
+import tensorflow as tf
+from keras.layers import Dense
+from keras.models import Sequential
 
 class SO_Model:
     
@@ -175,6 +178,38 @@ class SO_Model:
         self._printKeysAndPreds("predictions","keys",test_posts,proba_Y)
 
 
+    def runModelNeuralNet(self):
+        train_posts, test_posts = self._getTrainingData()
+        X, Y = self._computeFeatures(train_posts)
+        #Convert the list of list to 2d numpy array
+        X = np.array(X)
+        #Convert the booleans to ints
+        X = np.multiply(X, 1)
+        #Convert the list to a 1d numpy array
+        Y = np.array(Y)
+        
+        print("Size of Training set is", len(X), len(Y))
+        print("Y samples are ", sorted(Counter(np.array(Y)).items()))
+        
+        #Define the model
+        model = Sequential()
+        model.add(Dense(10, activation='relu', kernel_initializer='he_normal', input_dim=X.shape[1]))
+        model.add(Dense(8, activation='relu', kernel_initializer='he_normal'))
+        model.add(Dense(1, activation='sigmoid'))
+        # compile the model
+        model.compile(optimizer='adam', loss='binary_crossentropy', 
+                       metrics=['accuracy', 
+                                tf.keras.metrics.Precision(name='precision'),
+                                tf.keras.metrics.Recall(name='recall')])
+        # fit the model
+        history = model.fit(X, Y, epochs=1500, batch_size=32, verbose=0)
+        accuracy = history.history['accuracy'][-1]
+        precision = history.history['precision'][-1]
+        recall = history.history['recall'][-1]
+        f_measure = 2*((precision*recall)/(precision+recall))
+        print('Train accuracy is ', accuracy)
+        print('Train f_measure is ', f_measure)
+
 
     def runModelCrossVal(self):
         train_posts, test_posts = self._getTrainingData()
@@ -209,5 +244,6 @@ class SO_Model:
 
 if __name__ == '__main__':
     model = SO_Model()
-    model.runModelCrossVal()
+    #model.runModelCrossVal()
     #model.runModelTrainTestSplit()
+    model.runModelNeuralNet()
