@@ -33,11 +33,11 @@ class Time_Features:
         
         # if secs < 60: #1 minute
         #     features["tdiff_minute"] = 1
-        # elif secs < 60*5: #5 minutes
-        #     features["tdiff_5min"] = 1
+        if secs < 60*5: #5 minutes
+            features["tdiff_5min"] = 1
         # elif secs < 60*30: #30 minutes
         #     features["tdiff_30min"] = 1
-        if secs < 60*60: #an hour
+        elif secs < 60*60: #an hour
             features["tdiff_hour"] = 1
         elif secs < 60*60*24: #24 hours
             features["tdiff_24h"] = 1

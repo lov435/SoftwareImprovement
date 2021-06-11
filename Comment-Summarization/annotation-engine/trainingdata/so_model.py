@@ -70,26 +70,21 @@ class SO_Model:
                 x2 = int(speaker_feature.refersToSpeakerUseCacheNoOrder(comment1, comment2) == True)
                 #x2 = True
                 x3 = semantic_feature.weighted_cosine_similarity(comment1, comment2)
-                #x3 = 1
+                x4 = semantic_feature.cosine_similarity(comment1, comment2)
 
                 feature_dict = timeFeatures.getTimeFeature(comment1, comment2)
-                # x4 = feature_dict["tdiff_minute"]
-                # x5 = feature_dict["tdiff_5min"]
-                # x6 = feature_dict["tdiff_30min"]
+                x5 = feature_dict["tdiff_5min"]
                 x7 = feature_dict["tdiff_hour"]
                 x8 = feature_dict["tdiff_24h"]
                 x9 = feature_dict["tdiff_week"]
-                # x10 = feature_dict["tdiff_month"]
-                # x11 = feature_dict["tdiff_half_year"]
-                # x12 = feature_dict["tdiff_year"]
                 x13 = feature_dict["other"]
 
                 x14 = textSimFeatures.jaccard_feature(comment1, comment2)
-
-                x15 = int(speaker_feature.refersToThirdSpeaker(comment1, comment2) == True)
+                x15 = textSimFeatures.jaccard_code_feature(comment1, comment2)
+                x16 = int(speaker_feature.refersToThirdSpeaker(comment1, comment2) == True)
                 # x16 = bert_feature.cosine_similarity(comment1, comment2)
 
-                features = [x1, x2, x3, x7, x8, x9, x13, x14, x15]
+                features = [x1, x2, x3, x4, x5, x7, x8, x9, x13, x14, x15, x16]
                 print(features)
                 X.append(features)
                 Y.append(y)
@@ -155,7 +150,7 @@ class SO_Model:
         print("Size of Training set is", len(X), len(Y))
         print("Y samples are ", sorted(Counter(np.array(Y)).items()))
 
-        model = RandomForestClassifier(n_estimators=500)
+        model = RandomForestClassifier(max_depth=5)
         model.fit(np.array(X), np.array(Y))
         TX, TY = self._computeFeatures(test_posts)
         pred_Y = model.predict(np.array(TX))
@@ -173,8 +168,6 @@ class SO_Model:
                 print(proba_Y[i][0])
 
         self._printChats('chats',test_posts)
-        # self._printKeys('keys',test_posts)
-        # self._printPredictions('predictions',proba_Y)
         self._printKeysAndPreds("predictions","keys",test_posts,proba_Y)
 
 
@@ -244,6 +237,6 @@ class SO_Model:
 
 if __name__ == '__main__':
     model = SO_Model()
-    #model.runModelCrossVal()
-    #model.runModelTrainTestSplit()
-    model.runModelNeuralNet()
+    # model.runModelCrossVal()
+    model.runModelTrainTestSplit()
+    # model.runModelNeuralNet()
