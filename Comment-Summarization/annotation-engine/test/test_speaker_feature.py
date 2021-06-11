@@ -63,16 +63,16 @@ class TestSpeakerFeatures(unittest.TestCase):
         c2 = Comment("Thanks @VHS. I appreciate it", a2, datetime.datetime(2010, 5, 17))
         
         speakerFeature = Speaker_Feature()
-        ret = speakerFeature.refersToThirdSpeaker(c1, c2)
+        ret = speakerFeature.refersToSameThirdSpeaker(c1, c2)
         self.assertTrue(ret, msg="Refers to same third speaker not detected")
         
         a3 = Author("Jon Skeet", 22656, 1186748)
         c3 = Comment("+1 VHS for your answer", a3, datetime.datetime(2015, 5, 17))
-        ret = speakerFeature.refersToThirdSpeaker(c3, c1)
+        ret = speakerFeature.refersToSameThirdSpeaker(c3, c1)
         self.assertFalse(ret, msg="Refers to same third person shouldn't have been detected")
 
         c4 =  Comment("Thank you @ViralSheth. Glad to be of help", a3, datetime.datetime(2015, 5, 17))
-        ret = speakerFeature.refersToThirdSpeaker(c4, c1)
+        ret = speakerFeature.refersToSameThirdSpeaker(c4, c1)
         self.assertFalse(ret, msg="Refers to same third person shouldn't have been detected")
         
         print("End of the refers to the same third speaker test")

@@ -15,7 +15,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
 from sklearn.model_selection import cross_val_score
-from sklearn.metrics import precision_recall_fscore_support
+from sklearn.metrics import precision_recall_fscore_support, make_scorer, f1_score
 from imblearn.over_sampling import SMOTE, ADASYN
 
 from features.speaker_feature import Speaker_Feature
@@ -54,12 +54,9 @@ class SO_Model:
 
         X = []
         Y = []
-        self.feature_labels = ["same_speaker","refers_to_speaker","semantic_cos",
-            "tdiff_minute","tdiff_5min","tdiff_30min","tdiff_hour","tdiff_24h",
-            "tdiff_week","tdiff_month","tdiff_half_year","tdiff_year","other", 
-            "jaccard", "refers_to_third_speaker"]
+        self.feature_labels = []
 
-        use_features = ['speaker', 'semantic', 'text_similarity', 'time']
+        use_features = ['speaker', 'time', 'text_similarity', 'semantic']
 
         for post in all_posts:
             pairs = list(combinations(post, 2))
@@ -72,13 +69,16 @@ class SO_Model:
                 if 'speaker' in use_features:
                     x1 = int(speaker_feature.isSameSpeaker(comment1, comment2) == True)
                     x2 = int(speaker_feature.refersToSpeakerUseCacheNoOrder(comment1, comment2) == True)
-                    x16 = int(speaker_feature.refersToThirdSpeaker(comment1, comment2) == True)
-                    features.extend([x1,x2,x16])
+                    x16 = int(speaker_feature.refersToSameThirdSpeaker(comment1, comment2) == True)
+                    x21 = int(speaker_feature.refersToDifferentThirdSpeaker(comment1, comment2) == True)
+                    features.extend([x1,x2,x16,x21])
+                    self.feature_labels.extend(["same_speaker","refers_to_speaker","refers_to_same_speaker","refers_to_diff_speaker"])
 
                 if 'semantic' in use_features:
                     x3 = semantic_feature.weighted_cosine_similarity(comment1, comment2)
                     x4 = semantic_feature.cosine_similarity(comment1, comment2)
                     features.extend([x3,x4])
+                    self.feature_labels.extend(["weighted_cosine","cosine"])
 
                 if 'time' in use_features:
                     feature_dict = timeFeatures.getTimeFeature(comment1, comment2)
@@ -88,11 +88,13 @@ class SO_Model:
                     x9 = feature_dict["tdiff_week"]
                     x13 = feature_dict["other"]
                     features.extend([x5,x7,x8,x9,x13])
+                    self.feature_labels.extend(["tdiff_5min","tdiff_hour","tdiff_24h","tdiff_week","tdiff_other"])
 
                 if 'text_similarity' in use_features:
                     x14 = textSimFeatures.jaccard_feature(comment1, comment2)
                     x15 = textSimFeatures.jaccard_code_feature(comment1, comment2)
                     features.extend([x14,x15])
+                    self.feature_labels.extend(["jaccard","jaccard_code"])
 
                 # x16 = bert_feature.cosine_similarity(comment1, comment2)
 
@@ -226,7 +228,7 @@ class SO_Model:
 
         model = RandomForestClassifier(max_depth=5)
         model.fit(np.array(X), np.array(Y))
-        #self._checkFeatureImportance(model,X,Y)
+        self._checkFeatureImportance(model,X,Y)
 
         #model = KNeighborsClassifier(3)
         #model = SVC()
@@ -235,8 +237,9 @@ class SO_Model:
         print("Average cross validation accuracy is")
         print(np.mean(cross_val_score(model, np.array(X), np.array(Y), cv=10, scoring='accuracy')))
 
+        scorer = make_scorer(f1_score, average='micro')
         print("Average cross validation F-measure is")
-        print(np.mean(cross_val_score(model, np.array(X), np.array(Y), cv=10, scoring='f1')))  
+        print(np.mean(cross_val_score(model, np.array(X), np.array(Y), cv=10, scoring=scorer)))
         
         #Now let's run the classifier on SMOTE oversampled dataset
         # print("Average cross validation accuracy on oversampled dataset is")

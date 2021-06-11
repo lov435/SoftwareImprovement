@@ -60,9 +60,10 @@ class Speaker_Feature:
             unames = self._getPreviousNames(authorUid)
         included = False
         for uname in unames:
-            if "@" + str(uname) in text:
-                included = True
-                break
+            if len(str(uname)) > 2:
+                if "@" + str(uname) in text:
+                    included = True
+                    break
         return included
     
     def refersToSpeaker(self, c1, c2):
@@ -87,7 +88,7 @@ class Speaker_Feature:
             pass
         return x1 or x2
     
-    def refersToThirdSpeaker(self, c1, c2):
+    def refersToSameThirdSpeaker(self, c1, c2):
         sameThirdSpeaker = False
         c1mentions = [ t for t in c1.text.split() if t.startswith('@') ]
         c2mentions = [ t for t in c2.text.split() if t.startswith('@') ]
@@ -96,5 +97,20 @@ class Speaker_Feature:
             c2mentions[0].lower() in c1mentions[0].lower():
                 sameThirdSpeaker = True
         return sameThirdSpeaker
-            
+
+    def refersToDifferentThirdSpeaker(self, c1, c2):
+        diffThirdSpeaker = False
+        c1mentions = [ t for t in c1.text.split() if t.startswith('@') ]
+        c2mentions = [ t for t in c2.text.split() if t.startswith('@') ]
+        if c1mentions and c2mentions:
+            if c1mentions[0].lower() in c2mentions[0].lower() or \
+                    c2mentions[0].lower() in c1mentions[0].lower():
+                #sameThirdSpeaker = True
+                pass
+            else:
+                diffThirdSpeaker = True
+        elif c1mentions or c2mentions:
+            if not self.refersToSpeakerUseCacheNoOrder(c1,c2):
+                diffThirdSpeaker = True
+        return diffThirdSpeaker
             
