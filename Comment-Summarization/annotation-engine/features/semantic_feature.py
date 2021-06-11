@@ -50,4 +50,4 @@ class Semantic_Feature:
             weighted_c2 = np.add(weighted_c2, self.model[c2_word] * (0.001 / (0.001 + self.model.vocab[c2_word].count)))
         weighted_c2 = weighted_c2 / len(c2_words)
         cosine = 1.0 - scipy.spatial.distance.cosine(weighted_c1, weighted_c2)
-        return cosine
+        return abs(cosine)

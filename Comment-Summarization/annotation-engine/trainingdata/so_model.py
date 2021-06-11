@@ -59,6 +59,8 @@ class SO_Model:
             "tdiff_week","tdiff_month","tdiff_half_year","tdiff_year","other", 
             "jaccard", "refers_to_third_speaker"]
 
+        use_features = ['speaker', 'semantic', 'text_similarity', 'time']
+
         for post in all_posts:
             pairs = list(combinations(post, 2))
             for (comment1, comment2) in pairs:
@@ -66,25 +68,34 @@ class SO_Model:
                 group2 = post.get(comment2)
                 y = 1 if group1 == group2 else 0
 
-                x1 = int(speaker_feature.isSameSpeaker(comment1, comment2) == True)
-                x2 = int(speaker_feature.refersToSpeakerUseCacheNoOrder(comment1, comment2) == True)
-                #x2 = True
-                x3 = semantic_feature.weighted_cosine_similarity(comment1, comment2)
-                x4 = semantic_feature.cosine_similarity(comment1, comment2)
+                features = []
+                if 'speaker' in use_features:
+                    x1 = int(speaker_feature.isSameSpeaker(comment1, comment2) == True)
+                    x2 = int(speaker_feature.refersToSpeakerUseCacheNoOrder(comment1, comment2) == True)
+                    x16 = int(speaker_feature.refersToThirdSpeaker(comment1, comment2) == True)
+                    features.extend([x1,x2,x16])
 
-                feature_dict = timeFeatures.getTimeFeature(comment1, comment2)
-                x5 = feature_dict["tdiff_5min"]
-                x7 = feature_dict["tdiff_hour"]
-                x8 = feature_dict["tdiff_24h"]
-                x9 = feature_dict["tdiff_week"]
-                x13 = feature_dict["other"]
+                if 'semantic' in use_features:
+                    x3 = semantic_feature.weighted_cosine_similarity(comment1, comment2)
+                    x4 = semantic_feature.cosine_similarity(comment1, comment2)
+                    features.extend([x3,x4])
 
-                x14 = textSimFeatures.jaccard_feature(comment1, comment2)
-                x15 = textSimFeatures.jaccard_code_feature(comment1, comment2)
-                x16 = int(speaker_feature.refersToThirdSpeaker(comment1, comment2) == True)
+                if 'time' in use_features:
+                    feature_dict = timeFeatures.getTimeFeature(comment1, comment2)
+                    x5 = feature_dict["tdiff_5min"]
+                    x7 = feature_dict["tdiff_hour"]
+                    x8 = feature_dict["tdiff_24h"]
+                    x9 = feature_dict["tdiff_week"]
+                    x13 = feature_dict["other"]
+                    features.extend([x5,x7,x8,x9,x13])
+
+                if 'text_similarity' in use_features:
+                    x14 = textSimFeatures.jaccard_feature(comment1, comment2)
+                    x15 = textSimFeatures.jaccard_code_feature(comment1, comment2)
+                    features.extend([x14,x15])
+
                 # x16 = bert_feature.cosine_similarity(comment1, comment2)
 
-                features = [x1, x2, x3, x4, x5, x7, x8, x9, x13, x14, x15, x16]
                 print(features)
                 X.append(features)
                 Y.append(y)
@@ -237,6 +248,6 @@ class SO_Model:
 
 if __name__ == '__main__':
     model = SO_Model()
-    # model.runModelCrossVal()
-    model.runModelTrainTestSplit()
+    model.runModelCrossVal()
+    # model.runModelTrainTestSplit()
     # model.runModelNeuralNet()
