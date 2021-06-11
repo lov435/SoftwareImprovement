@@ -6,6 +6,8 @@ Created on Wed Jul 15 00:19:54 2020
 """
 
 import sys, os
+
+THRESHOLD_FOR_CLUSTERING = 0.4
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
 from trainingdata.training_data import Training_Data
@@ -118,7 +120,7 @@ class SO_Model:
                 pairs_proba = sorted(zip(pairs, proba), key=lambda x: x[0][1])
                 for (item1, item2), pr_tuple in pairs_proba:
                     kf.write(str(start + item2[0]) + " " + str(start + item1[0]) + "\n")
-                    if (pr_tuple[0] > 0.5):
+                    if (pr_tuple[0] > THRESHOLD_FOR_CLUSTERING):
                         pf.write("0\t" + str(1 - pr_tuple[0]) + "\n")
                     else:
                         pf.write("1\t" + str(pr_tuple[1]) + "\n")
@@ -237,7 +239,7 @@ class SO_Model:
         print("Average cross validation accuracy is")
         print(np.mean(cross_val_score(model, np.array(X), np.array(Y), cv=10, scoring='accuracy')))
 
-        scorer = make_scorer(f1_score, average='micro')
+        scorer = make_scorer(f1_score, average='binary')
         print("Average cross validation F-measure is")
         print(np.mean(cross_val_score(model, np.array(X), np.array(Y), cv=10, scoring=scorer)))
         
@@ -251,6 +253,6 @@ class SO_Model:
 
 if __name__ == '__main__':
     model = SO_Model()
-    model.runModelCrossVal()
-    # model.runModelTrainTestSplit()
+    # model.runModelCrossVal()
+    model.runModelTrainTestSplit()
     # model.runModelNeuralNet()
