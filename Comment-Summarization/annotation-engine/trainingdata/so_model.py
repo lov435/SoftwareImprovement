@@ -129,24 +129,6 @@ class SO_Model:
                 kf.write(str(start) + " " + str(start-1) + "\n")
                 pf.write("0\t0.0001\n")
 
-    # def _printPredictions(self, predfile, proba):
-    #     with open(predfile, 'w') as f:
-    #         for pr_tuple in proba:
-    #             if (pr_tuple[0] > 0.5):
-    #                 f.write("0\t" + str(1 - pr_tuple[0]) + "\n")
-    #             else:
-    #                 f.write("1\t" + str(pr_tuple[1]) + "\n")
-    #
-    #
-    # def _printKeys(self, keysfile, test_posts):
-    #     start = 0
-    #     with open(keysfile, 'w') as f:
-    #         for t_post in test_posts:
-    #             pairs = list(combinations(enumerate(t_post), 2))
-    #             for (item1, item2) in pairs:
-    #                 f.write(str(start + item2[0]) + " " + str(start + item1[0]) + "\n")
-    #             start = start + len(t_post)
-
 
     def _printChats(self, chatsfile, test_posts):
         with open(chatsfile, 'w', encoding='utf-8') as f:
@@ -187,14 +169,18 @@ class SO_Model:
 
 
     def runModelNeuralNet(self):
-        train_posts, test_posts = self._getTrainingData()
+        train_posts, test_posts = self._getTrainingData(0.7)
         X, Y = self._computeFeatures(train_posts)
+        TX, TY = self._computeFeatures(test_posts)
         #Convert the list of list to 2d numpy array
         X = np.array(X)
+        TX = np.array(TX)
         #Convert the booleans to ints
         X = np.multiply(X, 1)
+        TX = np.multiply(TX, 1)
         #Convert the list to a 1d numpy array
         Y = np.array(Y)
+        TY = np.array(TY)
         
         print("Size of Training set is", len(X), len(Y))
         print("Y samples are ", sorted(Counter(np.array(Y)).items()))
@@ -217,6 +203,10 @@ class SO_Model:
         f_measure = 2*((precision*recall)/(precision+recall))
         print('Train accuracy is ', accuracy)
         print('Train f_measure is ', f_measure)
+        
+        scores = model.evaluate(TX, TY)
+        print("%s:-> %.2f%%" % (model.metrics_names[1], scores[1]))
+        print("The test f_measure is ", 2*((scores[2]*scores[3])/(scores[2]+scores[3])))
 
 
     def runModelCrossVal(self):
@@ -253,6 +243,6 @@ class SO_Model:
 
 if __name__ == '__main__':
     model = SO_Model()
-    # model.runModelCrossVal()
-    model.runModelTrainTestSplit()
-    # model.runModelNeuralNet()
+    model.runModelCrossVal()
+    #model.runModelTrainTestSplit()
+    #model.runModelNeuralNet()
