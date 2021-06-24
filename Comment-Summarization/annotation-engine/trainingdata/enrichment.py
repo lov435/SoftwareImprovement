@@ -33,8 +33,9 @@ class Enrichment:
             author = Author(uname, uid, reputation)
             text = item['body']
             epochTime = item['creation_date']
+            upvotes = item['score']
             timestamp = datetime.datetime.fromtimestamp(epochTime).strftime('%Y-%m-%d %H:%M:%S')
-            comment = Comment(text, author, timestamp)
+            comment = Comment(text, author, timestamp, upvotes)
             comments.append(comment)
         return comments
     
@@ -86,7 +87,7 @@ class Enrichment:
                     matched_comment = self._getCommentWithText(comments, comment[:comment.index(u"\u2013")])
                     line = url + "," + comment.replace(",", "|COMMA|") + "," + matched_comment.text.replace(",", "|COMMA|") + "," + \
                     matched_comment.timeStamp + "," + str(matched_comment.author.authorId) + "," + \
-                    matched_comment.author.authorName + "," + str(matched_comment.author.repPoints) + "," + str(group)
+                    matched_comment.author.authorName + "," + str(matched_comment.author.repPoints) + "," + str(group) + "," + str(matched_comment.upvotes)
                     lines.append(line)
                     
             except csv.Error as e:

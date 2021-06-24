@@ -37,8 +37,9 @@ class Training_Data:
                     uname = row[5]
                     reputation = row[6]                    
                     author = Author(uname, uid, reputation)
+                    upvotes = row[8]
                     
-                    comment = Comment(text, author, timestamp)
+                    comment = Comment(text, author, timestamp, upvotes)
 
                     group = row[7]
                     
