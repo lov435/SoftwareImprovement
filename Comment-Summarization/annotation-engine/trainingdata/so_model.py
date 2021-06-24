@@ -229,7 +229,7 @@ class SO_Model:
         print("Average cross validation accuracy is")
         print(np.mean(cross_val_score(model, np.array(X), np.array(Y), cv=10, scoring='accuracy')))
 
-        scorer = make_scorer(f1_score, average='binary')
+        scorer = make_scorer(f1_score, average='micro')
         print("Average cross validation F-measure is")
         print(np.mean(cross_val_score(model, np.array(X), np.array(Y), cv=10, scoring=scorer)))
         
