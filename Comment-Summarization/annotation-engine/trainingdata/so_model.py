@@ -16,13 +16,17 @@ from features.semantic_feature import Semantic_Feature
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
+from sklearn.neural_network import MLPClassifier
 from sklearn.model_selection import cross_val_score
-from sklearn.metrics import precision_recall_fscore_support, make_scorer, f1_score
+from sklearn.metrics import precision_recall_fscore_support, make_scorer, f1_score, \
+    accuracy_score, precision_score, recall_score
 from imblearn.over_sampling import SMOTE, ADASYN
 
 from features.speaker_feature import Speaker_Feature
 from features.time_features import Time_Features
 from features.text_similarity_features import Text_Similarity_Features
+
+
 
 from itertools import combinations
 from collections import Counter
@@ -58,7 +62,8 @@ class SO_Model:
         Y = []
         self.feature_labels = []
 
-        use_features = ['speaker', 'time', 'text_similarity', 'semantic']
+        use_features = ['text_similarity']
+        # use_features = ['speaker', 'time', 'text_similarity', 'semantic']
 
         for post in all_posts:
             pairs = list(combinations(post, 2))
@@ -218,12 +223,12 @@ class SO_Model:
         # X_resampled, Y_resampled = SMOTE().fit_resample(np.array(X), np.array(Y))
         # print("Oversampled Y samples are ", sorted(Counter(Y_resampled).items()))
 
+        # model = KNeighborsClassifier(3)
+        # model = SVC()
         model = RandomForestClassifier(max_depth=5)
-        model.fit(np.array(X), np.array(Y))
-        self._checkFeatureImportance(model,X,Y)
+        # model.fit(np.array(X), np.array(Y))
+        # self._checkFeatureImportance(model,X,Y)
 
-        #model = KNeighborsClassifier(3)
-        #model = SVC()
 
         #Let's do 10-Fold Cross validation
         print("Average cross validation accuracy is")
@@ -232,7 +237,15 @@ class SO_Model:
         scorer = make_scorer(f1_score, average='micro')
         print("Average cross validation F-measure is")
         print(np.mean(cross_val_score(model, np.array(X), np.array(Y), cv=10, scoring=scorer)))
-        
+
+        scorer = make_scorer(precision_score)
+        print("Average cross validation precision is")
+        print(np.mean(cross_val_score(model, np.array(X), np.array(Y), cv=10, scoring=scorer)))
+
+        scorer = make_scorer(recall_score)
+        print("Average cross validation recall is")
+        print(np.mean(cross_val_score(model, np.array(X), np.array(Y), cv=10, scoring=scorer)))
+
         #Now let's run the classifier on SMOTE oversampled dataset
         # print("Average cross validation accuracy on oversampled dataset is")
         # print(np.mean(cross_val_score(model, X_resampled, Y_resampled, cv=10, scoring='accuracy')))
@@ -240,9 +253,28 @@ class SO_Model:
         # print("Average cross validation F-measure on oversampled dataset is")
         # print(np.mean(cross_val_score(model, X_resampled, Y_resampled, cv=10, scoring='f1')))
 
+    def runSimpleBaselines(self):
+        train_posts, test_posts = self._getTrainingData()
+        X, Y = self._computeFeatures(train_posts)
+        print("Size of Training set is", len(X), len(Y))
+        print("Y samples are ", sorted(Counter(np.array(Y)).items()))
+
+        #column 1 = refers to speaker
+        predi = [row[1] for row in X]
+
+        res = precision_recall_fscore_support(Y,predi,average='micro')
+        print("Average cross validation precision is")
+        print(precision_score(Y,predi,average='micro'))
+        print("Average cross validation recall is")
+        print(res[1])
+        print("Average cross validation F-score is")
+        print(res[2])
+
+
 
 if __name__ == '__main__':
     model = SO_Model()
     model.runModelCrossVal()
-    #model.runModelTrainTestSplit()
-    #model.runModelNeuralNet()
+    # model.runModelTrainTestSplit()
+    # model.runModelNeuralNet()
+    # model.runSimpleBaselines()
