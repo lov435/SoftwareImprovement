@@ -19,7 +19,7 @@ from sklearn.svm import SVC
 from sklearn.neural_network import MLPClassifier
 from sklearn.model_selection import cross_val_score
 from sklearn.metrics import precision_recall_fscore_support, make_scorer, f1_score, \
-    accuracy_score, precision_score, recall_score
+    accuracy_score, precision_score, recall_score, roc_auc_score
 from imblearn.over_sampling import SMOTE, ADASYN
 
 from features.speaker_feature import Speaker_Feature
@@ -62,8 +62,8 @@ class SO_Model:
         Y = []
         self.feature_labels = []
 
-        use_features = ['text_similarity']
-        # use_features = ['speaker', 'time', 'text_similarity', 'semantic']
+        # use_features = ['semantic']
+        use_features = ['speaker', 'time', 'text_similarity', 'semantic']
 
         for post in all_posts:
             pairs = list(combinations(post, 2))
@@ -244,6 +244,10 @@ class SO_Model:
 
         scorer = make_scorer(recall_score)
         print("Average cross validation recall is")
+        print(np.mean(cross_val_score(model, np.array(X), np.array(Y), cv=10, scoring=scorer)))
+
+        scorer = make_scorer(roc_auc_score)
+        print("Average cross validation ROC AUC is")
         print(np.mean(cross_val_score(model, np.array(X), np.array(Y), cv=10, scoring=scorer)))
 
         #Now let's run the classifier on SMOTE oversampled dataset
