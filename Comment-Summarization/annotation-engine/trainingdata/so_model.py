@@ -20,13 +20,14 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.model_selection import cross_val_score
 from sklearn.metrics import precision_recall_fscore_support, make_scorer, f1_score, \
     accuracy_score, precision_score, recall_score, roc_auc_score
-from imblearn.over_sampling import SMOTE, ADASYN
+
+from sklearn.model_selection import RepeatedStratifiedKFold
 
 from features.speaker_feature import Speaker_Feature
 from features.time_features import Time_Features
 from features.text_similarity_features import Text_Similarity_Features
 
-
+from xgboost import XGBClassifier
 
 from itertools import combinations
 from collections import Counter
@@ -35,6 +36,8 @@ import numpy as np
 import tensorflow as tf
 from keras.layers import Dense
 from keras.models import Sequential
+
+from lightgbm import LGBMClassifier
 
 class SO_Model:
     
@@ -105,7 +108,7 @@ class SO_Model:
 
                 # x16 = bert_feature.cosine_similarity(comment1, comment2)
 
-                print(features)
+                #print(features)
                 X.append(features)
                 Y.append(y)
 
@@ -274,11 +277,58 @@ class SO_Model:
         print("Average cross validation F-score is")
         print(res[2])
 
+    def runModelCrossValXGBoost(self):
+        train_posts, test_posts = self._getTrainingData()
+        X, Y = self._computeFeatures(train_posts)
+
+        #Construct the XGBoost classifer model
+        #Specify these 2 parameters to constructor to avoid warnings
+        model = XGBClassifier(eval_metric='logloss', use_label_encoder=False)
+        
+        scorer = make_scorer(f1_score, average='micro')
+        print("Average cross validation F-measure is")
+        print(np.mean(cross_val_score(model, np.array(X), np.array(Y), cv=10, scoring=scorer)))
+
+        scorer = make_scorer(precision_score)
+        print("Average cross validation precision is")
+        print(np.mean(cross_val_score(model, np.array(X), np.array(Y), cv=10, scoring=scorer)))
+
+        scorer = make_scorer(recall_score)
+        print("Average cross validation recall is")
+        print(np.mean(cross_val_score(model, np.array(X), np.array(Y), cv=10, scoring=scorer)))
+
+        scorer = make_scorer(roc_auc_score)
+        print("Average cross validation ROC AUC is")
+        print(np.mean(cross_val_score(model, np.array(X), np.array(Y), cv=10, scoring=scorer)))
+
+    def runModelCrossValLightGBM(self):
+        train_posts, test_posts = self._getTrainingData()
+        X, Y = self._computeFeatures(train_posts)
+
+        model = LGBMClassifier()
+        #cv = RepeatedStratifiedKFold(n_splits=10, n_repeats=3, random_state=1)
+
+        print("Average cross validation accuracy is")
+        print(np.mean(cross_val_score(model,  np.array(X), np.array(Y), scoring='accuracy', cv=10)))
+        
+        scorer = make_scorer(f1_score, average='micro')
+        print("Average cross validation F-measure is")
+        print(np.mean(cross_val_score(model,  np.array(X), np.array(Y), scoring=scorer, cv=10)))
+
+        scorer = make_scorer(precision_score)
+        print("Average cross validation precision is")
+        print(np.mean(cross_val_score(model,  np.array(X), np.array(Y), scoring=scorer, cv=10)))
+
+        scorer = make_scorer(recall_score)
+        print("Average cross validation recall is")
+        print(np.mean(cross_val_score(model,  np.array(X), np.array(Y), scoring=scorer, cv=10)))
 
 
 if __name__ == '__main__':
     model = SO_Model()
-    model.runModelCrossVal()
+    model.runModelCrossVal() #Random Forest is the best of all
+    #model.runModelCrossValXGBoost()
+    #model.runModelCrossValLightGBM()
     # model.runModelTrainTestSplit()
     # model.runModelNeuralNet()
     # model.runSimpleBaselines()
